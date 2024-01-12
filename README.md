@@ -1,8 +1,7 @@
-# CSE 216 - Software Engineering Tutorials
-This the README for the Phase 3 Team 7-11 Repo (Sprint 12)
+# The Buzz Social Media App
 
 ## Details
-* Semester: Fall 2023
+* Last Updated: Fall 2023
 # Student names: 
 * Bukky Omole: Mobile Front-end
 * Anthony Gatti: Web Front-end
@@ -10,15 +9,9 @@ This the README for the Phase 3 Team 7-11 Repo (Sprint 12)
 * Matthew Bergin: Back-end
 * Madix Marlatt: PM
 
-# Bitbucket Repository:
-    * On the web: <https://bitbucket.org/rdm325/cse216-2023fa-team-11/src/master/>
-
 # Design Artifacts: 
     * <https://drive.google.com/drive/folders/1ndRNPwlY8R8ooJwsJn0jKbak7ogIL6aZ>
     
-# Video Link:
-    * <https://lehighonline.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=2a4c2495-9c0c-44b4-be77-b0d100074371>
-
 # Database:
     * peanut.db.elephantsql.com
 
