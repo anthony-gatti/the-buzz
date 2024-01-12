@@ -1,0 +1,45 @@
+#header {
+  background-color:#444444;
+  color: #eeeeee;
+  text-align: center;
+  width: 100vw;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  top: 0px;
+}
+img[alt="profile"] {
+  height: 64px;
+  align-self: center;
+}
+img[alt="profile"]:hover {
+  height: 66px;
+  cursor: pointer;
+}
+#buzz:hover {
+  cursor: pointer;
+}
+#buzz {
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: auto;
+  margin-left: auto;
+  padding-top: 25px;
+  padding-bottom: 25px;
+  font-family: 'Courier New', Courier, monospace;
+}
+.vertFlex {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+}
+#signInDiv {
+  position: fixed;
+  left: 10px;
+  margin-left: 10px;
+  margin-top: 20px;
+  top: 20px;
+}

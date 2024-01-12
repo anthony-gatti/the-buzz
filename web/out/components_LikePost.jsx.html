@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/LikePost.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/LikePost.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import  { useState, useEffect } from 'react';
+import "../styles/LikePost.css";
+import unupvoted from "../assets/UnUpvoted.png";
+import upvoted from "../assets/Upvoted.png";
+import undownvoted from "../assets/UnDownvoted.png";
+import downvoted from "../assets/Downvoted.png";
+
+/** 
+ * The upvoting/downvoting part of a message/post
+*/
+function LikePost(props) {
+  /**
+   * Hook to hold if the post is upvoted or not
+   */
+  let  [liked, setLiked] = useState(false);
+  /**
+   * Hook to hold if the post is downvoted or not
+   */
+  let  [disliked, setDisliked] = useState(false);
+  /**
+   * Hook to hold the upvotes-downvotes of the post
+   */
+  const [likeCount, setLikeCount] = useState(props.votes);
+
+  /**
+   * Necessary since votes won't get passed down immediately
+   */
+  useEffect(() => {
+    if(props.votes == "ThisIsForCommentPage"){
+      setLikeCount(props.getVotes());
+    }
+  }, [props.getVotes])
+  /**
+   * Run when the message we are looking at updates
+   * Gets whether the message has been upvoted or downvoted by the current user and sets hooks accordingly
+   */
+  useEffect(() => {
+    //Someone is logged in
+    if(props.getToken() != ""){
+      console.log("Logged in");
+       //Check if the message was upvoted
+      if(props.upvoted == 1){
+        setLiked(true);
+      }
+      else if(props.downvoted == 1){
+        setDisliked(true);
+      }
+      setLikeCount(props.votes); //Starts as NaN on comments page for some reason, this fixes that
+    }
+    else{
+      console.log("Logged out");
+      setLiked(false);
+      setDisliked(false);
+    }
+   //runs whenever these change
+  }, [props.getMid(), props.getToken(), props.getToken])
+  /**
+   * Called when uvpote button is clicked to do whatever behavior is necessary depending on current values
+   */
+  const handleUpvote = async () => {
+    try {
+      if (liked) {
+        // If the post is upvoted, send a delete request to remove the upvote
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/messages/upvote/${props.id}`, {
+          method: 'DELETE', 
+          headers: {
+            'Content-Type': 'application/json',
+            'Session-Key': props.getToken()
+          },
+        });
+
+        if (response.ok) {
+          setLiked(false); // set liked to false, no like
+          setLikeCount(likeCount - 1); //decrement likecount locally, don't need another api call
+        } else {
+          console.error('Failed to remove the like');
+        }
+      } else if(disliked) {
+        // If the post is downvoted, send post request of upvote and delete request of downvote
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/messages/upvote/${props.id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Session-Key': props.getToken()
+          },
+          body: JSON.stringify({
+           
+          }),
+        });
+        const response2 = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/messages/downvote/${props.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Session-Key': props.getToken()
+          },
+          body: JSON.stringify({
+           
+          }),
+        });
+
+        if (response.ok &amp;&amp; response2.ok) {
+          setLiked(true); // set like to true, upvoted
+          setDisliked(false); // No longer downvoted
+          setLikeCount(likeCount + 2); //increment likecount locally by 2 since we are remvoing a downvote and adding an upvote
+        } else {
+          console.error('Failed to like the post');
+        }
+      }
+      else {
+        // If the post is not upvoted or downvoted, send a post request to add the like
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/messages/upvote/${props.id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Session-Key': props.getToken()
+          },
+          body: JSON.stringify({
+           
+          }),
+        });
+
+        if (response.ok) {
+          setLiked(true); // set like to true, upvoted
+          setLikeCount(likeCount + 1); //increment upvote locally
+          console.log(response);
+        } else {
+          console.error('Failed to like the post');
+        }
+      }
+    } catch (error) {
+      console.warn('Something went wrong.', error);
+    }
+  };
+  /**
+   * Called when downvote button is clicked to do whatever behavior is necessary depending on current values
+   */
+  const handleDownvote = async () => {
+    try {
+      if (disliked) {
+        // If the post is downvoted, send a delete request to remove the downvote
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/messages/downvote/${props.id}`, {
+          method: 'DELETE', 
+          headers: {
+            'Content-Type': 'application/json',
+            'Session-Key': props.getToken()
+          },
+        });
+
+        if (response.ok) {
+          setDisliked(false); // set disliked to false, no downvote
+          setLikeCount(likeCount + 1); //increment likecount locally, no need for an api call
+        } else {
+          console.error('Failed to remove the like');
+        }
+      } else if(liked) {
+        // If the post upvoted, remove it and downvote it instead
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/messages/downvote/${props.id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Session-Key': props.getToken()
+          },
+          body: JSON.stringify({
+           
+          }),
+        });
+        const response2 = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/messages/upvote/${props.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Session-Key': props.getToken()
+          },
+          body: JSON.stringify({
+           
+          }),
+        });
+
+        if (response.ok &amp;&amp; response2.ok) {
+          setDisliked(true); // set disliked to true, downvoted
+          setLiked(false); //set liked to false, not upvoted anymore
+          setLikeCount(likeCount - 2); //decrement likeCount locally by 2
+        } else {
+          console.error('Failed to like the post');
+        }
+      }
+      else {
+        // If the post is not downvoted, send a post request to add the downvote
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/messages/downvote/${props.id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Session-Key': props.getToken()
+          },
+          body: JSON.stringify({
+           
+          }),
+        });
+
+        if (response.ok) {
+          setDisliked(true); //set disliked to true, downvoted
+          setLikeCount(likeCount - 1); //decrement likecount locally
+        } else {
+          console.error('Failed to like the post');
+        }
+      }
+    } catch (error) {
+      console.warn('Something went wrong.', error);
+    }
+  };
+
+
+  /**
+   * Returns the actual html code for this component.
+   * The total amount of upvotes-downvotes as well as upvote and downvote buttons
+   */
+  return (
+    &lt;>
+    &lt;div className="likeSection">
+      &lt;p>{likeCount}&lt;/p>
+      &lt;div className="post" data-testid="like-post-component">
+        {liked ? &lt;img src={upvoted} alt="upvoted" onClick={handleUpvote}>&lt;/img> : &lt;img src={unupvoted} alt="unupvoted" onClick={handleUpvote}>&lt;/img>}
+        {disliked ? &lt;img src={downvoted} alt="downvoted" onClick={handleDownvote}>&lt;/img> : &lt;img src={undownvoted} alt="undownvoted" onClick={handleDownvote}>&lt;/img>}
+      &lt;/div>
+    &lt;/div>
+    &lt;/>
+  );
+};
+
+export default LikePost;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Bio">Bio</a></li><li><a href="global.html#Comment">Comment</a></li><li><a href="global.html#CommentsPage">CommentsPage</a></li><li><a href="global.html#Demographics">Demographics</a></li><li><a href="global.html#DisplayMessage">DisplayMessage</a></li><li><a href="global.html#DisplayPost">DisplayPost</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LikePost">LikePost</a></li><li><a href="global.html#NewComment">NewComment</a></li><li><a href="global.html#PersonalInfo">PersonalInfo</a></li><li><a href="global.html#backendUrl">backendUrl</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Nov 14 2023 15:27:54 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

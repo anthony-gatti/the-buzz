@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Bio.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Bio.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useEffect, useState } from "react";
+/** 
+ * The Bio section of the profile page, including a header and a section for the note, including editting capabilities
+*/
+
+function Bio(props){
+    /**
+     * Hook to see if the user is currently editting the note or not, to determine what will be shown to them
+     */
+    const [noteEdit, setNoteEdit] = useState(false);
+    /**
+     * Hook to hold the current value of the note section
+     */
+    const [note, setNote] = useState(props.gi);
+    /**
+     * Hook to hold the user currently on the page so we can tell if they should be able to edit or not
+     */
+    const[user, setUser] = useState(props.getInfo().uId);
+    /**
+     * Due to the async nature of the props, they may not be defined when the component is initially created.
+     * Thus the useEffect, which runs everytime the note prop changes, will update the user and note once they have values.
+     * Similarly, the props are recieved through a function so they can change in the parent
+     */
+    useEffect(() => {
+        setNote(props.getInfo().uNote);
+        setUser(props.getInfo().uId);
+    }, [props.getInfo().uNote])
+
+    /**
+     * Function to toggle which button is showing (edit or save) and update the value of note itself
+     */
+    const noteEditing = () => {
+        /**
+         * Gets the input field itself that the user has been putting the editted value into
+         */
+        const element = document.getElementById("note");
+        /**
+         * Updates the hook with whatever the user has typed in so it can be used easily in the future
+         */
+        setNote(element.value);
+        /**
+         * Function to actually change the value of note in the database.
+         * Includes the session key of the user in the headers
+         */
+        const changeNote = async () => {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/users/note/${user}`, {
+              method: 'PUT', 
+              body: JSON.stringify({
+                uNote: `${element.value}`,
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+                'Session-Key': props.getToken()
+              },
+            });
+      
+            if (response.ok) {
+              console.log("Successfully changed note");
+            } else {
+              console.log(response);
+              console.error('Failed to change note');
+            }
+        }
+        /**
+         * Calls the function we just defined
+         */
+        changeNote();
+        /**
+         * Toggles the hook so the input field and save button will be replaced by the normal display and edit button
+         */
+        setNoteEdit(false);
+    }
+
+    /**
+     * Returns the actual html code for this component.
+     * Will only display one of the two sections depending on if it is being editted or not.
+     */
+    return (
+        &lt;>
+        &lt;div id="bio">
+            &lt;h3>Bio&lt;/h3>
+            { noteEdit &amp;&amp;
+                &lt;>
+                    &lt;div className="fieldrow">
+                        &lt;label htmlFor="note">Note: &lt;/label>
+                        &lt;textarea data-testid="note-input" id="note" name="note" rows="5" cols = "50">{note}&lt;/textarea>
+                        &lt;button data-testid="note-save-button" className="save" id="noteSave" onClick={noteEditing}>Save&lt;/button>
+                    &lt;/div>
+                &lt;/>
+            }
+            { !noteEdit &amp;&amp;
+                &lt;>
+                    &lt;p>Note: {note}&lt;/p>
+                    {user == props.getUser() &amp;&amp;
+                        &lt;button data-testid="note-edit-button" className="edit" id="noteEdit" onClick={() => setNoteEdit(true)}>Edit&lt;/button>
+                    }
+                &lt;/>
+            }
+            &lt;br />
+        &lt;/div>
+        &lt;/>
+    );
+}
+
+    export default Bio;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Bio">Bio</a></li><li><a href="global.html#Comment">Comment</a></li><li><a href="global.html#CommentsPage">CommentsPage</a></li><li><a href="global.html#Demographics">Demographics</a></li><li><a href="global.html#DisplayMessage">DisplayMessage</a></li><li><a href="global.html#DisplayPost">DisplayPost</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LikePost">LikePost</a></li><li><a href="global.html#NewComment">NewComment</a></li><li><a href="global.html#PersonalInfo">PersonalInfo</a></li><li><a href="global.html#backendUrl">backendUrl</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Nov 14 2023 15:27:53 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

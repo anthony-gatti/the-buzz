@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Header.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Header.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import "../styles/Header.css";
+import profile from '../assets/profile.png';
+import { useEffect, useState } from 'react';
+import { jwtDecode } from "jwt-decode";
+
+/** 
+ * The header shown at the top of all screens 
+ * Contains a sign-in/out button and a title "The Buzz" linked to the homepage
+ * When logged in there is a profile picture linking to the user's profile
+*/
+function Header(props){
+    //Oauth code from this video: https://www.youtube.com/watch?v=roxC8SMs7HU
+
+    /**
+     * Used in the callback for when the User logs in with google
+     * Sets user hook with what we get from Google/the backend
+     * @param {*} response 
+     */
+    function handleCallbackResponse(response){
+        console.log("Encoded JWT ID token: " + response.credential);
+        const postUser = async (credential) => {
+            try {
+                // Make a GET request when the component mounts
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/users`, {
+                  method: 'POST',
+                  headers: {
+                      'Content-type': 'application/json; charset=UTF-8',
+                      'Session-Key': import.meta.env.VITE_SESSION_KEY,
+                      'Id-Token-String': credential
+                  }
+                });
+
+                if (response.ok) {
+                      // Put the response data into data and then set the messages to the data received from the server
+                    const data = await response.json();
+                    //console.log(data);
+                    props.setCurrentUser(data.uid);
+                    props.setToken(data.mSessionToken);
+                }else{ 
+                  // throw error if the server response is not okay
+                    throw new Error(`The server replied not ok: ${response.status}\n${response.statusText}`);
+                }
+
+            } catch (error) {
+              // error if the get rquest was rejected/didn't go through
+                console.warn('Error fetching messages:', error);
+                window.alert('Unspecified error');
+            }
+        }; // end of Post user
+        postUser(response.credential);
+        localStorage.setItem('sessionCredential', JSON.stringify(response.credential));
+        document.getElementById("signInDiv").hidden = true;
+    }
+    function alreadyLoggedIn(credential){
+      const postUser = async (credential) => {
+        console.log(credential);
+        try {
+            // Make a GET request when the component mounts
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/users`, {
+              method: 'POST',
+              headers: {
+                  'Content-type': 'application/json; charset=UTF-8',
+                  'Session-Key': import.meta.env.VITE_SESSION_KEY,
+                  'Id-Token-String': credential
+              }
+            });
+
+            if (response.ok) {
+                  // Put the response data into data and then set the messages to the data received from the server
+                const data = await response.json();
+                console.log(data);
+                props.setCurrentUser(data.uid);
+                props.setToken(data.mSessionToken);
+                document.getElementById("signInDiv").hidden = true;
+            }else{ 
+              // throw error if the server response is not okay
+                console.log("Session expired");
+            }
+
+        } catch (error) {
+          // error if the get rquest was rejected/didn't go through
+            console.warn('Error fetching messages:', error);
+            window.alert('Unspecified error');
+        }
+    }; // end of Post user
+    postUser(credential);    
+    }
+    /**
+     * Handles signout of google
+     * Sets current user to blank and shows sign-in button
+     * @param {*} event 
+     */
+    function handleSignout(event){
+        props.setCurrentUser("");
+        props.setToken("");
+        localStorage.setItem('sessionCredential', "");
+        document.getElementById("signInDiv").hidden = false;
+    }
+    /**
+     * Run once when the page loads, sets up the google login process/button
+     */
+    useEffect(() => {
+        /* global google */
+        google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_CLIENT_ID,
+          callback: handleCallbackResponse
+        });
+        google.accounts.id.renderButton(
+          document.getElementById("signInDiv"),
+          {
+            theme: "outline", size: "medium"
+          }
+        )
+        //Check to see if there is already a session credential in storage
+        if(localStorage.getItem('sessionCredential') != ""){
+          alreadyLoggedIn(localStorage.getItem('sessionCredential').slice(1, localStorage.getItem('sessionCredential').length-1));
+          //slice cuts off the preceding and terminating ""
+        }
+      }, [])
+    /**
+     * Change the page displayed to the user to the profile page of the current user
+     * Calls a hook passed as a prop from the parent App.jsx to change the value of the hook
+     */
+    const routeProfile = () => {
+        props.changePage(`profile/${props.getCurrentUser()}`);
+    }
+    /**
+     * Change the page displayed to the user page with all the messages
+     * Calls a hook passed as a prop from the parent App.jsx to change the value of the hook
+     */
+    const routeHome = () => {
+        props.changePage("Home");
+    }
+    /**
+     * Returns the actual html code for this component.
+     * Sign-in/out button and header "The Buzz"
+     */
+    return (
+        &lt;>
+        &lt;div id="header">
+            &lt;div id="login">
+                &lt;div id="signInDiv">&lt;/div>
+                { props.getCurrentUser() != "" &amp;&amp;
+                    &lt;>
+                    &lt;div className="vertFlex">
+                        &lt;img onClick={routeProfile} src={profile} alt="profile"/>
+                        &lt;button onClick={(e) => handleSignout(e)}>Sign Out&lt;/button>
+                    &lt;/div>
+                    &lt;/>
+                }
+            &lt;/div>
+            &lt;h1 id="buzz" onClick={routeHome}>The Buzz&lt;/h1>
+            &lt;div>    
+            &lt;/div>
+        &lt;/div>
+        &lt;/>
+    );
+    }
+
+    export default Header;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Bio">Bio</a></li><li><a href="global.html#Comment">Comment</a></li><li><a href="global.html#CommentsPage">CommentsPage</a></li><li><a href="global.html#Demographics">Demographics</a></li><li><a href="global.html#DisplayMessage">DisplayMessage</a></li><li><a href="global.html#DisplayPost">DisplayPost</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LikePost">LikePost</a></li><li><a href="global.html#NewComment">NewComment</a></li><li><a href="global.html#PersonalInfo">PersonalInfo</a></li><li><a href="global.html#backendUrl">backendUrl</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Nov 14 2023 15:27:54 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

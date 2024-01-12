@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/CommentsPage.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/CommentsPage.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import DisplayMessage from "../components/DisplayMessage";
+import Comment from "../components/Comment";
+import NewComment from "../components/NewComment";
+import { useState, useEffect } from "react";
+import "../styles/CommentsPage.css";
+import Add from "../assets/Add.png";
+/**
+ * Comments Page, displays the message and its associated comments
+ */
+function CommentsPage(props) {
+  /**
+   * Hook to see if the user is currently adding a new comment or not
+   */
+  const [add, setAdd] = useState(false);
+  /**
+   * Hook to hold a list of comments the user has now added
+   */
+  const [newComments, setNewComments] = useState([]);
+  /**
+   * Hook to hold the comments retrieved from the backend
+   */
+  const [comments, setComments] = useState([]);
+  /**
+   * Hook to hold the main message the comments are made about
+   */
+  const [post, setPost] = useState({});
+  
+  const getTotalVotes = () => {
+    return post.mUpvotes - post.mDownvotes;
+  }
+
+  /**
+   * Runs once page loads, retrieves all the comments associated with a particular post
+   */
+  useEffect(() => {
+    // start of fetch data
+    const fetchComments = async () => {
+        try {
+            // Make a GET request when the component mounts
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/messages/comments/${props.mid}`, {
+              method: 'GET',
+              headers: {
+                  'Content-type': 'application/json; charset=UTF-8',
+                  'Session-Key': import.meta.env.VITE_SESSION_KEY
+              }
+            });
+
+            if (response.ok) {
+                 // Put the response data into data and then set the messages to the data received from the server
+                const data = await response.json();
+                setComments(data.mData);
+            }else{ 
+              // throw error if the server response is not okay
+               throw new Error(`The server replied not ok: ${response.status}\n${response.statusText}`);
+            }
+
+        } catch (error) {
+          // error if the get rquest was rejected/didn't go through
+            console.warn('Error fetching messages:', error);
+            window.alert('Unspecified error');
+        }
+    }; // end of fetch data
+
+    fetchComments();
+}, []); // The empty dependency array ensures this effect runs once after the initial render
+    
+  /**
+   * Runs once the page loads, retrieves the main message the comments are made about
+   */
+    useEffect(() => {
+        // start of fetch data
+        const fetchData = async () => {
+            try {
+                // Make a GET request when the component mounts
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/messages/${props.mid}`, {
+                  method: 'GET',
+                  headers: {
+                      'Content-type': 'application/json; charset=UTF-8',
+                      'Session-Key': import.meta.env.VITE_SESSION_KEY
+                  }
+                });
+
+                if (response.ok) {
+                     // Put the response data into data and then set the messages to the data received from the server
+                    const data = await response.json();
+                    setPost(data.mData);
+                }else{ 
+                  // throw error if the server response is not okay
+                   throw new Error(`The server replied not ok: ${response.status}\n${response.statusText}`);
+                }
+
+            } catch (error) {
+              // error if the get rquest was rejected/didn't go through
+                console.warn('Error fetching messages:', error);
+                window.alert('Unspecified error');
+            }
+        }; // end of fetch data
+
+        fetchData();
+    }, [])
+
+    
+
+  /**
+   * Returns actual html from the component
+   * Main post, the comments retrieved from the backend, the new comments, and either a button to add new comments or the input itself
+   */
+  return (
+    &lt;>
+      &lt;div className="comments">
+        &lt;div className="commentMessage">
+          &lt;DisplayMessage title={post.mSubject} message={post.mMessage} uid={post.uid} mid={post.mid} username={props.uid}
+            getVotes={getTotalVotes} votes="ThisIsForCommentPage" changePage={props.changePage} getToken={props.getToken}/>
+        &lt;/div>
+        {comments.map(comment => (
+          &lt;Comment key={comment.cId} cid={comment.cId} message={comment.cContent} 
+          uid={comment.uId} changePage={props.changePage} getUser={props.getUser} getToken={props.getToken}/>
+        ))}
+
+        {newComments.map(comment => (
+            &lt;Comment key={comment.cId} cid={comment.cId} message={comment.content} 
+            uid={comment.user} changePage={props.changePage} getUser={props.getUser} getToken={props.getToken}/>
+        ))}
+        
+        {!add &amp;&amp; props.getUser() != "" &amp;&amp;
+          &lt;div className="newCommentDiv">&lt;img src={Add} alt="add comment" onClick={() => setAdd(true)} />&lt;/div>
+        }
+        {add &amp;&amp;
+           &lt;div className="newCommentDiv">
+             &lt;NewComment mid={post.mid} setAdd={setAdd} addComment={setNewComments} newComments={newComments} 
+              getUser={props.getUser} getToken={props.getToken}/>
+           &lt;/div>
+        }
+      &lt;/div>
+    &lt;/>
+  )
+  }
+
+export default CommentsPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Bio">Bio</a></li><li><a href="global.html#Comment">Comment</a></li><li><a href="global.html#CommentsPage">CommentsPage</a></li><li><a href="global.html#Demographics">Demographics</a></li><li><a href="global.html#DisplayMessage">DisplayMessage</a></li><li><a href="global.html#DisplayPost">DisplayPost</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LikePost">LikePost</a></li><li><a href="global.html#NewComment">NewComment</a></li><li><a href="global.html#PersonalInfo">PersonalInfo</a></li><li><a href="global.html#backendUrl">backendUrl</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Nov 14 2023 15:27:53 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

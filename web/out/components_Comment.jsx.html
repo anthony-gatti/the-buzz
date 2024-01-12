@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Comment.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Comment.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import "../styles/Comment.css";
+import edit from "../assets/Edit.png";
+import { useState } from "react";
+/** 
+ * A comment made on a post
+ * Contains ability to edit if it is your own and the display of the creator
+*/
+function Comment(props) {
+    /**
+     * Hook to see if the user is currently editting the comment  or not, to determine what will be shown to them
+     */
+    const [contentEdit, setContentEdit] = useState(false);
+    /**
+     * Hook to hold the current value of the comment
+     */
+    const [content, setContent] = useState(props.message);
+
+    /**
+     * Function to toggle which button is showing (edit or save) and update the value of the comment itself
+     */
+    const contentEditing = () => {
+        /**
+         * Gets the input field itself that the user has been putting the editted value into
+         */
+        const element = document.getElementById("content");
+        /**
+         * Updates the hook with whatever the user has typed in so it can be used easily in the future
+         */
+        setContent(element.value);
+        /**
+         * Function to actually change the value of comment in the database.
+         * Includes the session key of the user in the headers
+         */
+        const changeComment = async () => {
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/comments/${props.cid}`, {
+            method: 'PUT', 
+            body: JSON.stringify({
+              cContent: `${element.value}`,
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+              'Session-Key': props.getToken()
+            },
+          });
+    
+          if (response.ok) {
+            console.log("Successfully changed comment");
+          } else {
+            console.log(response);
+            console.error('Failed to change comment');
+          }
+        }
+        /**
+         * Calls the function we just defined
+         */
+        changeComment();
+        /**
+         * Toggles the hook so the input field and save button will be replaced by the normal display and edit button
+         */
+        setContentEdit(false);
+    }
+    /**
+     * Change the page displayed to the user to the profile page of whichever user made the comment that was clicked on
+     * Calls a hook passed as a prop from the parent component CommentsPage which comes from App.jsx to change the value of the hook
+     */
+    const routeProfile = () => {
+        props.changePage(`profile/${props.uid}`);
+    }
+
+    /**
+     * Returns the actual html code for this component.
+     * Will only display one of the two sections depending on if it is being editted or not and will only let the user edit if they made it
+     */
+    return (
+        &lt;>
+        &lt;div className="comment">
+            &lt;div className="toprow">
+                {!contentEdit &amp;&amp; 
+                    &lt;p className="content">{content}&lt;/p>
+                }
+                {contentEdit &amp;&amp; 
+                    &lt;>
+                        &lt;label htmlFor="content">Comment: &lt;/label>
+                        &lt;textarea data-testid="comment-edit-input" id="content" name="content" rows="4" cols="50" defaultValue={content}>&lt;/textarea>
+                        &lt;button data-testid="comment-save-button" className="save" id="contentSave" onClick={() => contentEditing()}>Save&lt;/button>
+                    &lt;/>
+                }
+                { props.uid == props.getUser() &amp;&amp;
+                    &lt;img data-testid="comment-edit-button" src={edit} alt="edit" onClick={() => setContentEdit(true)}/>
+                }
+            &lt;/div>
+            &lt;p className="userLink" onClick={routeProfile}>{props.uid}&lt;/p>
+        &lt;/div>
+        &lt;/>
+    )
+    }
+  
+  export default Comment;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Bio">Bio</a></li><li><a href="global.html#Comment">Comment</a></li><li><a href="global.html#CommentsPage">CommentsPage</a></li><li><a href="global.html#Demographics">Demographics</a></li><li><a href="global.html#DisplayMessage">DisplayMessage</a></li><li><a href="global.html#DisplayPost">DisplayPost</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LikePost">LikePost</a></li><li><a href="global.html#NewComment">NewComment</a></li><li><a href="global.html#PersonalInfo">PersonalInfo</a></li><li><a href="global.html#backendUrl">backendUrl</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Nov 14 2023 15:27:53 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

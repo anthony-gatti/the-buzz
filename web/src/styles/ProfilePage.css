@@ -1,0 +1,19 @@
+#profileInfo {
+    background-color: #111111;
+}
+
+.fieldrow {
+    display: flex;
+}
+
+.edit, .save {
+    max-height: 70%;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left:7px;
+}
+#profileInfo {
+    padding-left: 20px;
+    padding-top: 15px;
+    color: white;
+}

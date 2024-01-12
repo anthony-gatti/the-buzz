@@ -1,0 +1,56 @@
+.newCommentDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.comment {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 800px; 
+    margin: 0 auto;
+}
+
+.comment div {
+    margin-bottom: 15px;
+}
+
+.comment textarea,
+.comment input[type="file"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.comment button 
+.save .cancel {
+    width: 30%;
+    padding: 6px; 
+    font-size: 14px;
+    background-color: lightgray
+}
+
+.comment .cancel {
+    margin-top: 16px; 
+}
+
+/* Additional styling for other elements on your page */
+.commentMessage {
+    margin-left: 40px;
+}
+
+.comments {
+    display: grid;
+    grid-auto-rows: minmax(200px, auto);
+    grid-template-columns: 1fr;
+    color: white;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+img[alt="add comment"] {
+    max-height: 40px;
+    justify-self: center;
+    margin-top: 10px;
+}

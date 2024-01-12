@@ -1,0 +1,72 @@
+{
+    "./src/components/Bio.jsx": [
+      {
+        "description": "The Bio section of the profile page, including a header and a section for the note, including editting capabilities",
+        "methods": [],
+        "displayName": "Bio"
+      }
+    ],
+    "./src/components/Comment.jsx": [
+      {
+        "description": "A comment made on a post\r\nContains ability to edit if it is your own and the display of the creator",
+        "methods": [],
+        "displayName": "Comment"
+      }
+    ],
+    "./src/components/Demographics.jsx": [
+      {
+        "description": "The Demographics section of the profile page, including a header and sections for the gender and sexual orientation, and editting capabilities",
+        "methods": [],
+        "displayName": "Demographics"
+      }
+    ],
+    "./src/components/DisplayMessage.jsx": [
+      {
+        "description": "A message/post, contains title, content, user who posted it, a button for comments, and a LikePost component",
+        "methods": [],
+        "displayName": "DisplayMessage"
+      }
+    ],
+    "./src/components/DisplayPost.jsx": [
+      {
+        "description": "Displays a list of DisplayMessage components using data retrieved from backend/database",
+        "methods": [],
+        "displayName": "DisplayPost"
+      }
+    ],
+    "./src/components/Header.jsx": [
+      {
+        "description": "The header shown at the top of all screens \r\nContains a sign-in/out button and a title \"The Buzz\" linked to the homepage\r\nWhen logged in there is a profile picture linking to the user's profile",
+        "methods": [],
+        "displayName": "Header"
+      }
+    ],
+    "./src/components/PersonalInfo.jsx": [
+      {
+        "description": "The personal info section of the profile page, including a header and sections for the username and email, including editting capabilities",
+        "methods": [],
+        "displayName": "PersonalInfo"
+      }
+    ],
+    "./src/components/LikePost.jsx": [
+      {
+        "description": "The upvoting/downvoting part of a message/post",
+        "methods": [],
+        "displayName": "LikePost"
+      }
+    ],
+    "./src/components/NewComment.jsx": [
+      {
+        "description": "The input section for adding a new comment",
+        "methods": [],
+        "displayName": "NewComment"
+      }
+    ],
+    "./src/components/DeletePost.jsx": [
+      {
+        "description": "",
+        "methods": [],
+        "displayName": "DeletePost"
+      }
+    ]
+  }

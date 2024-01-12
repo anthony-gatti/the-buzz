@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/ProfilePage.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/ProfilePage.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import PersonalInfo from '../components/PersonalInfo';
+import Demographics from '../components/Demographics';
+import Bio from '../components/Bio';
+import "../styles/ProfilePage.css";
+import { useState, useEffect } from 'react';
+
+// this component displays the profile page
+function ProfilePage(props){
+    /**
+     * Hook to hold the info about a user
+     */
+    const [info, setInfo] = useState({});
+    /**
+     * Hook to see if the user is currently editting the name or not, to determine what will be shown to them
+     */
+    const [nameEdit, setNameEdit] = useState(false);
+    /**
+     * Hook to hold the user currently on the page so we can tell if they should be able to edit or not
+     */
+    const[user, setUser] = useState(info.uId);
+    /**
+     * Used to pass changing values as props
+     * @returns info object about the user
+     */
+     const getInfo = () => {
+        return info;
+    }
+    /**
+     * Adjust value of name
+     */
+    const [name, setName] = useState(getInfo().name);
+    useEffect(() => {
+        setName(info.name)
+        setUser(info.uId);
+    }, [getInfo().uUsername])
+    /**
+     * Function to toggle which button is showing (edit or save) and update the value of note itself
+     */
+    const nameEditing = () => {
+        /**
+         * Gets the input field itself that the user has been putting the editted value into
+         */
+        const element = document.getElementById("name");
+        /**
+         * Updates the hook with whatever the user has typed in so it can be used easily in the future
+         */
+        setName(element.value);
+        /**
+         * Function to actually change the value of note in the database.
+         * Includes the session key of the user in the headers
+         */
+        const changeName = async () => {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/users/name/${user}`, {
+              method: 'PUT', 
+              body: JSON.stringify({
+                uName: `${element.value}`,
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+                'Session-Key': props.getToken()
+              },
+            });
+      
+            if (response.ok) {
+              console.log("Successfully changed name");
+            } else {
+              console.log(response);
+              console.error('Failed to change name');
+            }
+        }
+        /**
+         * Calls the function we just defined
+         */
+        changeName();
+        /**
+         * Toggles the hook so the input field and save button will be replaced by the normal display and edit button
+         */
+        setNameEdit(false);
+    }
+    /**
+     * Runs once the page loads, retrieves the information about the user
+     */
+    useEffect(() => {
+        // start of fetch data
+        const fetchData = async () => {
+            try {
+                // Make a GET request when the component mounts
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v3.0/users/${props.uid}`, {
+                  method: 'GET',
+                  headers: {
+                      'Content-type': 'application/json; charset=UTF-8',
+                      'Session-Key': import.meta.env.VITE_SESSION_KEY
+                  }
+                });
+
+                if (response.ok) {
+                     // Put the response data into data and then set the messages to the data received from the server
+                    const data = await response.json();
+                    setInfo(data.mData);
+                    console.log(data.mData);
+                }else{ 
+                  // throw error if the server response is not okay
+                   throw new Error(`The server replied not ok: ${response.status}\n${response.statusText}`);
+                }
+
+            } catch (error) {
+              // error if the get rquest was rejected/didn't go through
+                console.warn('Error fetching messages:', error);
+                window.alert('Unspecified error');
+            }
+        }; // end of fetch data
+
+        fetchData();
+    }, []); // The empty dependency array ensures this effect runs once after the initial render
+
+    /**
+     * Actual html code for this component
+     * A header with the user's name followed by the three child components, only showing the demographics if it is the same user
+     */
+    return (
+        &lt;>
+        &lt;div id="profileInfo">
+            &lt;h2>Profile&lt;/h2>
+            {!nameEdit &amp;&amp;
+                &lt;>
+                &lt;h4>User: {name}&lt;/h4>
+                {user == props.getUser() &amp;&amp;
+                    &lt;button data-testid="name-edit-button" className="edit" id="nameEdit" onClick={() => setNameEdit(true)}>Edit&lt;/button>
+                }
+                &lt;/>
+            }
+            {nameEdit &amp;&amp;
+                &lt;>
+                &lt;div className="fieldrow">
+                    &lt;label htmlFor="note">Note: &lt;/label>
+                    &lt;input data-testid="name-input" id="name" name="name" defaultValue={name}/>
+                    &lt;button data-testid="name-save-button" className="save" id="nameSave" onClick={nameEditing}>Save&lt;/button>
+                &lt;/div>
+                &lt;/>
+            }
+            
+            &lt;PersonalInfo getInfo={getInfo} getUser={props.getUser} getToken={props.getToken}/>
+            {props.getUser() == props.uid &amp;&amp;
+                &lt;Demographics getInfo={getInfo} getToken={props.getToken}/>
+            }
+            &lt;Bio getInfo={getInfo} getUser={props.getUser} getToken={props.getToken}/>
+        &lt;/div>
+        &lt;/>
+    );
+    }
+
+    export default ProfilePage;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Bio">Bio</a></li><li><a href="global.html#Comment">Comment</a></li><li><a href="global.html#CommentsPage">CommentsPage</a></li><li><a href="global.html#Demographics">Demographics</a></li><li><a href="global.html#DisplayMessage">DisplayMessage</a></li><li><a href="global.html#DisplayPost">DisplayPost</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LikePost">LikePost</a></li><li><a href="global.html#NewComment">NewComment</a></li><li><a href="global.html#PersonalInfo">PersonalInfo</a></li><li><a href="global.html#backendUrl">backendUrl</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Nov 14 2023 15:27:54 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
