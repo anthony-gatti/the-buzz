@@ -3,11 +3,11 @@
 ## Details
 * Last Updated: Fall 2023
 # Student names: 
-* Bukky Omole: Mobile Front-end
-* Anthony Gatti: Web Front-end
-* Robert Magnus: Admin-cli
-* Matthew Bergin: Back-end
-* Madix Marlatt: PM
+* Anthony Gatti
+* Bukky Omole
+* Madix Marlatt
+* Matthew Bergin
+* Robert Magnus
 
 # Design Artifacts: 
     * <https://drive.google.com/drive/folders/1ndRNPwlY8R8ooJwsJn0jKbak7ogIL6aZ>
